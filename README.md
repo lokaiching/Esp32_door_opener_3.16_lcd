@@ -24,6 +24,10 @@ Task - Config Interaction
 ==========
 1. enable to set the shelf id 
 
+==========
+Set up to able to show chinese
+==========
+
 
 ===========
 Notes
