@@ -1,3 +1,4 @@
+#include "wifi_connection_status.h"
 #include <stdio.h>
 #include "esp_wifi_bsp.h"
 #include "esp_wifi.h"  // WIFI
@@ -7,7 +8,6 @@
 
 #include "string.h"  //****************
 #include "sdkconfig.h"
-#include "app_data.h"
 
 static char *TAG = "esp_wifi_bsp";
 
@@ -60,14 +60,18 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
   if (event_id == WIFI_EVENT_STA_START)
   {
     xEventGroupSetBits(wifi_even_,0x01);
-    esp_wifi_connect(); // Connect to WiFi
+    //esp_wifi_connect(); // Connect to WiFi
   }
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
     ESP_LOGI(TAG, "WiFi disconnected, trying to reconnect...");
+    wifi_status_msg_t msg = WIFI_STATUS_DISCONNECTED;
+    xQueueSend(wifi_status_queue, &msg, 0);
     esp_wifi_connect();  // 断开后自动重连
   } 
   else if (event_id == IP_EVENT_STA_GOT_IP)
   {
+    wifi_status_msg_t msg = WIFI_STATUS_CONNECTED;
+    xQueueSend(wifi_status_queue, &msg, 0);
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
     char ip[25];
     uint32_t pxip = event->ip_info.ip.addr;
