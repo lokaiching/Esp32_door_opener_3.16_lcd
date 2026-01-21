@@ -1,0 +1,37 @@
+// ... backlight init, etc.
+
+// 1. 建立 ST7701 panel（你的 init_cmds、rgb_config 保持不變）
+esp_lcd_panel_handle_t panel_handle;
+// ... 你的 panel 新建程式碼（esp_lcd_new_panel_st7701 + init + reset + init）
+
+// 2. 用 esp_lvgl_port 接上
+lvgl_port_cfg_t lvgl_cfg = {
+    .disp_hor_res       = EXAMPLE_LCD_H_RES,
+    .disp_ver_res       = EXAMPLE_LCD_V_RES,
+    .double_buffer      = true,               // 或用你的 bounce buffer 邏輯
+    .full_refresh       = false,
+    .sw_rotate          = false,              // 如果不需要軟體旋轉
+    .task_priority      = EXAMPLE_LVGL_TASK_PRIORITY,
+    .task_stack         = EXAMPLE_LVGL_TASK_STACK_SIZE,
+    .task_core          = 1,
+    .task_affinity      = 1 << 1,
+    .tick_period_ms     = EXAMPLE_LVGL_TICK_PERIOD_MS,
+};
+
+lv_disp_t *disp = lvgl_port_add_disp(&lvgl_cfg);  // 這行取代你一堆 lv_display_create/set_xxx
+
+// 設定 flush callback（你的 example_lvgl_flush_cb，但改成用 panel_handle）
+lvgl_port_disp_add_flush_cb(disp, example_lvgl_flush_cb, panel_handle);
+
+// 如果有旋轉：
+#ifdef EXAMPLE_Rotate_90
+    lvgl_port_disp_set_rotation(disp, LV_DISP_ROT_90);
+#endif
+
+// 3. 註冊事件回調（避免 tearing 的 semaphore 邏輯）
+esp_lcd_rgb_panel_event_callbacks_t cbs = {
+    .on_bounce_frame_finish = example_on_bounce_frame_finish_event,
+};
+esp_lcd_rgb_panel_register_event_callbacks(panel_handle, &cbs, NULL);
+
+// 4. LVGL 就自動跑了（port 內建任務 + mutex + tick）

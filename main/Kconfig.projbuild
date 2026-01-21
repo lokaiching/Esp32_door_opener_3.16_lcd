@@ -1,0 +1,24 @@
+menu "Door Opener Config"
+    config ESP_WIFI_SSID
+        string "WiFi SSID"
+        default "LO 5G"
+
+    config ESP_WIFI_PASSWORD
+        string "WiFi Password"
+        default "00000000"
+
+    config VENDING_SERVER_URL
+        string "Vending Server Url with port"
+        default "mqtt://192.168.1.80:15000"
+        help
+            URL of the broker to connect to
+
+    config SHELF_ID
+        string "Shelf id"
+        default "S3"
+
+    config QR_READER_BAUD_RATE
+        int "Qr reader UART baud rate"
+        default 38400
+
+endmenu
