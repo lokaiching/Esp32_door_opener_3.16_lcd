@@ -16,8 +16,11 @@ typedef enum {
 typedef struct {
     bool wifi_connected;
     DoorStatus door_status;
+
+    bool status_changed;
+    unsigned long last_status_update;
 } app_data_t;
 
-extern app_data_t app_data;  // 只宣告，不定義
+extern app_data_t app_data; 
 
 #endif

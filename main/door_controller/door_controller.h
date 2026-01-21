@@ -7,7 +7,9 @@
 extern "C" {
 #endif
 
-void door_controller_doWork(app_data_t* app_data);
+void qr_reader_init();
+void door_controller_init();
+void door_controller_do_work(app_data_t* app_data);
 
 #ifdef __cplusplus
 }
