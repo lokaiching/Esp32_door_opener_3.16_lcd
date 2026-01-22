@@ -10,9 +10,7 @@ extern "C" {
 // Call this to update the UI when door status changes
 void door_controller_ui_update_status(DoorStatus status);
 
-// Optionally, show a message or notification
-void door_controller_ui_show_message(const char* msg);
-
+void door_controller_ui_init(void);
 #ifdef __cplusplus
 }
 #endif

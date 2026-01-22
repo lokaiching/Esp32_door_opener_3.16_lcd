@@ -3,6 +3,7 @@
 #include "app_data.h"
 #include "door_controller.h"
 #include "door_controller_ui.h"
+#include "esp_log.h"
 
 // ESP-IDF UART includes
 #include "driver/uart.h"
@@ -44,7 +45,7 @@ void qr_reader_init() {
 	uart_driver_install(QR_UART_PORT_NUM, QR_UART_BUF_SIZE, 0, 0, NULL, 0);
 	uart_param_config(QR_UART_PORT_NUM, &uart_config);
 	uart_set_pin(QR_UART_PORT_NUM, QR_UART_TX_PIN, QR_UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    LOGI("QR Reader UART initialized on port %d", QR_UART_PORT_NUM);
+    ESP_LOGI(TAG, "QR Reader UART initialized on port %d", QR_UART_PORT_NUM);
 }
 
 void handle_qr_input() {
@@ -59,7 +60,7 @@ void handle_qr_input() {
         return; // No data to read
     }
 
-    LOGI("Buffered data length: %d", buffered_len);
+    ESP_LOGI(TAG, "Buffered data length: %d", buffered_len);
 	uint8_t data[64];
 	int len = uart_read_bytes(QR_UART_PORT_NUM, data, sizeof(data), 100 / portTICK_PERIOD_MS);
 	for (int i = 0; i < len && !scanComplete; ++i) {
@@ -75,7 +76,7 @@ void handle_qr_input() {
 	}
 
 	if (scanComplete) {
-        LOGI("QR Scan Complete: %s", scannedString);
+        ESP_LOGI(TAG, "QR Scan Complete: %s", scannedString);
 
 		// TODO: Implement these functions as needed in your project
 		// checkWiFiConnection();
@@ -83,7 +84,7 @@ void handle_qr_input() {
 		// setStatus(DoorStatus_SUCCESS);
 
 		// Print received string for debug
-		printf("Received: %s\n", scannedString);
+		ESP_LOGI(TAG, "Received: %s", scannedString);
 		// testJsonString(scannedString);
 		// doorStatus = convertResponseToDoorStatus(sendPostRequest(scannedString));
 		// setStatus(doorStatus);

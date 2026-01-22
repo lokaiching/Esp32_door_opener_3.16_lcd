@@ -1,6 +1,8 @@
 #ifndef APP_DATA_H
 #define APP_DATA_H
 
+#include <stdbool.h>
+
 typedef enum {
     IDLE,         // Scan QR code to open door
     LOADING,      // Loading

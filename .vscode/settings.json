@@ -1,19 +1,20 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
-  "idf.espIdfPathWin": "C:\\Users\\alexlo\\esp\\v5.5.2\\esp-idf",
-  "idf.pythonInstallPath": "C:\\Users\\alexlo\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+  "idf.espIdfPathWin": "C:\\Users\\lokai\\esp\\v5.5.2\\esp-idf",
+  "idf.pythonInstallPath": "C:\\Users\\lokai\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
   "idf.openOcdConfigs": [
     "board/esp32s3-builtin.cfg"
   ],
-  "idf.portWin": "detect",
-  "idf.toolsPathWin": "C:\\Users\\alexlo\\.espressif",
+  "idf.portWin": "COM5",
+  "idf.toolsPathWin": "C:\\Users\\lokai\\.espressif",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32s3"
   },
-  "clangd.path": "C:\\Users\\alexlo\\.espressif\\tools\\esp-clang\\esp-19.1.2_20250312\\esp-clang\\bin\\clangd.exe",
+  "clangd.path": "C:\\Users\\lokai\\.espressif\\tools\\esp-clang\\esp-19.1.2_20250312\\esp-clang\\bin\\clangd.exe",
   "clangd.arguments": [
     "--background-index",
     "--query-driver=**",
-    "--compile-commands-dir=c:\\Users\\alexlo\\Documents\\PlatformIO\\Esp-idf\\esp32_lvgl_door_opener_esp_idf\\build"
-  ]
+    "--compile-commands-dir=c:\\Users\\lokai\\Documents\\PlatformIO\\Esp-idf\\esp32_lvgl_door_opener_esp_idf\\build"
+  ],
+  "idf.flashType": "UART"
 }

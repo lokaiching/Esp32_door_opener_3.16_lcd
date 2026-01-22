@@ -24,6 +24,10 @@ Task - Config Interaction
 ==========
 1. enable to set the shelf id 
 
+==========
+Set up to able to show chinese
+==========
+
 
 ===========
 Notes
@@ -31,4 +35,6 @@ Notes
 1. idf.py update-dependencies
 2. add the cnofig to main/Kconfig.projbuild
 3. idf.py menuconfig
+  - component config -> esp psram -> enable spi ram
+  - (Top) → Component config → ESP PSRAM → Support for external, SPI-connected RAM → SPI RAM config  -> choose oct mode
 
