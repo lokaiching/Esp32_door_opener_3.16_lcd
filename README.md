@@ -43,3 +43,5 @@ Notes
    - generate the header file
    - udpate the CMmakeLists.txt
    - include in the ui.c
+
+5. size 320 x 820 / img size = 320 x 720 / logo = 320 x 80 / label = 320 x 40

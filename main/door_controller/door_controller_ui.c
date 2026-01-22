@@ -8,18 +8,21 @@
 #include <string.h>
 
 #define FONT_DEFAULT &door_opener_text_26
+#define USE_GIF_IMG 1
 
 // Assume these are defined/created elsewhere and set by your main UI init
 extern lv_obj_t* parent;
 extern lv_obj_t* label;
 extern lv_obj_t* status_bar;
-extern lv_obj_t* img;
+extern lv_obj_t* gif_img;
+extern lv_obj_t* fix_img;
 extern lv_obj_t* logo;
 
 lv_obj_t* parent = NULL;
 lv_obj_t* label = NULL;
 lv_obj_t* status_bar = NULL;
-lv_obj_t* img = NULL;
+lv_obj_t* gif_img = NULL;
+lv_obj_t* fix_img = NULL;
 lv_obj_t* logo = NULL;
 
 static volatile wifi_status_msg_t current_wifi_status = WIFI_STATUS_DISCONNECTED;
@@ -122,7 +125,11 @@ void door_controller_ui_update_status(DoorStatus status) {
 
     lv_label_set_text(label, marquee_text);
     marquee_x = lv_obj_get_width(parent); // reset to right edge
-    lv_img_set_src(img, img_source);
+    
+    #ifndef USE_GIF_IMG
+        lv_img_set_src(logo, img_source);
+    #endif
+    //lv_gif_set_src(gif_img, img_source);
 }
 
 /* label background color fading effect */
@@ -170,6 +177,34 @@ void door_controller_ui_init(void) {
     lv_obj_set_size(logo, 320, 80);
     lv_obj_align(logo, LV_ALIGN_TOP_MID, 0, 0); // Center the image
 
+    //Create Status Bar
+    status_bar = lv_label_create(parent);
+    lv_label_set_text(status_bar, ""); // Initially empty
+    lv_obj_set_style_text_color(status_bar, lv_color_hex(0xFF0000), 0); // Red color for errors
+    lv_obj_set_style_text_font(status_bar, FONT_DEFAULT, 0);
+    lv_obj_align(status_bar, LV_ALIGN_TOP_MID, 0, 85); // Position below logo
+    if (status_check_timer == NULL) {
+        status_check_timer = lv_timer_create(status_check_timer_cb, 1000, NULL); // Check every second
+    }
+
+#ifdef USE_GIF_IMG
+    // Create gif image
+    gif_img = lv_gif_create(parent);
+    lv_gif_set_src(gif_img, "/sdcard/loading.gif");
+    lv_obj_center(gif_img);
+    lv_obj_set_size(gif_img, 320, 700);
+    // Optional: control one of them later
+    // lv_gif_pause(gif_img);
+    // lv_gif_resume(gif_img);
+    // lv_gif_restart(gif_img);
+#else
+    // Create fixed image
+    fix_img = lv_image_create(parent);
+    lv_img_set_src(fix_img, "/sdcard/idle.jpg");
+    lv_obj_center(fix_img);
+    lv_obj_set_size(fix_img, 320, 700);
+#endif
+
     // Create label
     label = lv_label_create(parent);
     lv_label_set_text(label, marquee_text);
@@ -184,20 +219,8 @@ void door_controller_ui_init(void) {
         marquee_timer = lv_timer_create(marquee_timer_cb, 30, NULL); // 30 ms per frame
     }
 
-    //Create Status Bar
-    status_bar = lv_label_create(parent);
-    lv_label_set_text(status_bar, ""); // Initially empty
-    lv_obj_set_style_text_color(status_bar, lv_color_hex(0xFF0000), 0); // Red color for errors
-    lv_obj_set_style_text_font(status_bar, FONT_DEFAULT, 0);
-    lv_obj_align(status_bar, LV_ALIGN_TOP_MID, 0, 85); // Position below logo
-    if (status_check_timer == NULL) {
-        status_check_timer = lv_timer_create(status_check_timer_cb, 1000, NULL); // Check every second
-    }
 
-    // Create image
-    img = lv_img_create(parent);
-    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0); // Position it below center
 
-    // Optionally: Initialize with IDLE status after a delay or event
-    // door_controller_ui_update_status(IDLE);
+    //Optionally: Initialize with IDLE status after a delay or event
+    door_controller_ui_update_status(IDLE);
 }
