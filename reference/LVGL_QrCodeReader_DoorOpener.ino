@@ -180,7 +180,7 @@ DoorStatus convertResponseToDoorStatus(String response) {
     }
 }
 
-void handleQrInput(){
+void handle_qr_input(){
   while (Serial.available() > 0 && !scanComplete) {
     // Read the incoming byte
     Serial.print(scannedString);
@@ -268,7 +268,7 @@ void loop()
 
     resetStatus();
     updateDoorStatusDisplay(label, img);
-    handleQrInput();
+    handle_qr_input();
     
 
 }

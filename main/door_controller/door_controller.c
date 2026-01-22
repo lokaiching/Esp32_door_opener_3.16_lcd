@@ -1,3 +1,6 @@
+#include "esp_log.h"
+#include "esp_event.h"
+#include "app_data.h"
 #include "door_controller.h"
 #include "door_controller_ui.h"
 
@@ -5,11 +8,27 @@
 #include "driver/uart.h"
 #include "driver/gpio.h"
 
+// Free RTOS includes
+#include "freertos/FreeRTOS.h"
+#include "freertos/timers.h"
+
 #define QR_UART_PORT_NUM      UART_NUM_1
 #define QR_UART_BAUD_RATE     9600
 #define QR_UART_TX_PIN        (GPIO_NUM_17) // Change as needed
 #define QR_UART_RX_PIN        (GPIO_NUM_16) // Change as needed
 #define QR_UART_BUF_SIZE      1024
+
+#define STATUS_TIME_OUT_MS   10000 // 10 seconds
+
+static const char *TAG = "door_controller";
+
+app_data_t app_data;
+
+/* Event Handlers */
+static void on_status_change_cb(void *arg, esp_event_base_t base, int32_t id, void *data){
+	//TODO
+}
+
 
 void qr_reader_init() {
 	const uart_config_t uart_config = {
@@ -28,7 +47,7 @@ void qr_reader_init() {
     LOGI("QR Reader UART initialized on port %d", QR_UART_PORT_NUM);
 }
 
-void handleQrInput() {
+void handle_qr_input() {
 	static char scannedString[256] = {0};
 	static int scanIndex = 0;
 	static bool scanComplete = false;
@@ -76,11 +95,41 @@ void handleQrInput() {
 	}
 }
 
+void start_status_reset_timer() {
+	TimerHandle_t status_reset_timer = xTimerCreate(
+		"StatusResetTimer",
+		pdMS_TO_TICKS(1000),
+		pdFALSE,
+		(void*)0,
+		[](TimerHandle_t xTimer) {
+			unsigned long current_time = esp_timer_get_time() / 1000; // in ms
+			if (current_time - app_data.last_status_update >= STATUS_TIME_OUT_MS) { //
+				app_data.door_status = IDLE;
+				app_data.status_changed = false;
+				LOGI("Door status reset to IDLE after timeout");
+			}
+		}
+	);
+}
+
+
+
+void door_controller_init() {
+	// Initialize QR code reader UART
+	qr_reader_init();
+
+	// Register event handler for status changes
+	esp_event_handler_instance_t instance_any_id;
+	esp_event_handler_instance_register("door_controller", ESP_EVENT_ANY_ID, &on_status_change_cb, NULL, &instance_any_id);
+
+	LOGI("Door controller initialized");
+}
+
+
 
 void door_controller_do_work(app_data_t* app_data) {
     while(1){
-        handleQrInput();
-        door_controller_ui_update_status(app_data->door_status);
+        handle_qr_input();
         vTaskDelay(100 / portTICK_PERIOD_MS); // Adjust delay as needed
     }
 }
