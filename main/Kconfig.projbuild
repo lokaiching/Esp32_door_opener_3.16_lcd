@@ -1,7 +1,7 @@
 menu "Door Opener Config"
     config ESP_WIFI_SSID
         string "WiFi SSID"
-        default "LO 5G"
+        default "LO 2.4G"
 
     config ESP_WIFI_PASSWORD
         string "WiFi Password"
@@ -9,7 +9,7 @@ menu "Door Opener Config"
 
     config VENDING_SERVER_URL
         string "Vending Server Url with port"
-        default "mqtt://192.168.1.80:15000"
+        default "http://192.168.1.80:15000"
         help
             URL of the broker to connect to
 
