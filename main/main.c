@@ -15,7 +15,11 @@
 #include "driver/gpio.h"
 #include "user_config.h"
 #include "lcd_bl_pwm_bsp.h"
+
 #include "door_controller/door_controller_ui.h"
+#include "esp_wifi_bsp.h"
+#include "sdcard_bsp.h"
+
 static SemaphoreHandle_t lvgl_mux = NULL;
 static SemaphoreHandle_t flush_done_semaphore = NULL;
 
@@ -169,6 +173,11 @@ void lvgl_flush_wait_cb(lv_display_t * disp) //等待RGB发送数据完成,使�
 
 void app_main(void)
 {
+
+  ESP_ERROR(esp_event_loop_create_default());
+  espwifi_init();
+  _sdcard_init();
+
   lcd_bl_pwm_bsp_init(LCD_PWM_MODE_255);
   lvgl_mux = xSemaphoreCreateMutex();
   assert(lvgl_mux);

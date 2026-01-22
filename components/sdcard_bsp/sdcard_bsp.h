@@ -15,6 +15,12 @@ extern EventGroupHandle_t sdcard_even_;
 extern "C" {
 #endif
 
+typedef enum
+{
+  SDCARD_INIT_FAILED = 0,
+  SDCARD_INIT_SUCCESS = 1,
+}sdcard_status_msg_t;
+extern sdcard_status_msg_t sdcard_status;
 
 void _sdcard_init(void);
 esp_err_t sdcard_file_write(const char *path, const char *data);

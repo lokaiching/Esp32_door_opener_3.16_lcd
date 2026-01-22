@@ -14,6 +14,13 @@ typedef struct
 }esp_bsp_t;
 extern esp_bsp_t user_esp_bsp;
 
+typedef enum
+{
+  WIFI_STATUS_DISCONNECTED = 0,
+  WIFI_STATUS_CONNECTED = 1,
+}wifi_status_msg_t;
+extern wifi_status_msg_t wifi_status;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

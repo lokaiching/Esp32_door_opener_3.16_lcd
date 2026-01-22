@@ -13,7 +13,9 @@ static char *TAG = "esp_wifi_bsp";
 
 EventGroupHandle_t wifi_even_ = NULL;
 
+wifi_status_msg_t wifi_status = WIFI_STATUS_DISCONNECTED;
 esp_bsp_t user_esp_bsp;
+
 static esp_netif_t *net = NULL;
 static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 static void example_scan_wifi_task(void *arg);
@@ -64,35 +66,23 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
   }
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
     ESP_LOGI(TAG, "WiFi disconnected, trying to reconnect...");
-    wifi_status_msg_t msg = WIFI_STATUS_DISCONNECTED;
-    xQueueSend(wifi_status_queue, &msg, 0);
+    wifi_status = WIFI_STATUS_DISCONNECTED;
     esp_wifi_connect();  // 断开后自动重连
   } 
   else if (event_id == IP_EVENT_STA_GOT_IP)
   {
-    wifi_status_msg_t msg = WIFI_STATUS_CONNECTED;
-    xQueueSend(wifi_status_queue, &msg, 0);
+    wifi_status = WIFI_STATUS_CONNECTED;
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
     char ip[25];
     uint32_t pxip = event->ip_info.ip.addr;
     sprintf(ip, "%d.%d.%d.%d", (uint8_t)(pxip), (uint8_t)(pxip >> 8), (uint8_t)(pxip >> 16), (uint8_t)(pxip >> 24));
     ESP_LOGI("wifiSta","%s",ip);
-    //strcpy(user_esp_bsp._ip,ip);
-    //wifi_ap_record_t ap_info;
-    //if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
-    //{
-    //  ESP_LOGE("wifiSta","RSSI: %d dBm",ap_info.rssi);
-    //}
-    //else
-    //{
-    //  ESP_LOGE("wifiSta","Failed to get RSSI");
-    //}
-    //user_esp_bsp.rssi = ap_info.rssi;
-    //xEventGroupSetBits(wifi_even_,0x01);
   }
   else if(event_id == WIFI_EVENT_STA_DISCONNECTED)
   {
     ESP_LOGD("wifiSta","Disconnected");
+    wifi_status = WIFI_STATUS_DISCONNECTED;
+    esp_wifi_connect();  // 断开后自动重连
   }
 }
 

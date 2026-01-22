@@ -14,7 +14,7 @@
 #include "freertos/timers.h"
 
 #define QR_UART_PORT_NUM      UART_NUM_1
-#define QR_UART_BAUD_RATE     9600
+#define QR_UART_BAUD_RATE     CONFIG_QR_READER_BAUD_RATE
 #define QR_UART_TX_PIN        (GPIO_NUM_17) // Change as needed
 #define QR_UART_RX_PIN        (GPIO_NUM_16) // Change as needed
 #define QR_UART_BUF_SIZE      1024
@@ -27,7 +27,7 @@ QueueHandle_t qr_uart_queue = NULL;
 
 /* Event Handlers */
 static void on_status_changed(void *arg, esp_event_base_t base, int32_t id, void *data){
-	if(base = DOOR_CONTROLLER_EVENTS && id == DOOR_STATUS_CHANGED){
+	if(base == DOOR_CONTROLLER_EVENTS && id == DOOR_STATUS_CHANGED){
 		ESP_LOGI(TAG, "Door status changed event received");
 		door_controller_ui_update_status(app_data.door_status);
 		app_data.status_changed = false;
@@ -37,7 +37,7 @@ static void on_status_changed(void *arg, esp_event_base_t base, int32_t id, void
 }
 
 static void on_qr_uart_input_received(void *arg, esp_event_base_t base, int32_t id, void *data){
-	if(base = DOOR_CONTROLLER_EVENTS && id == QR_UART_INPUT_RECEIVED){
+	if(base == DOOR_CONTROLLER_EVENTS && id == QR_UART_INPUT_RECEIVED){
 		
 		const char *qr_string = (const char *)data;
 		
@@ -165,7 +165,6 @@ void door_controller_init() {
 	
 	// 3. Initialize status reset timer
 	start_status_reset_timer();
-
 
 	ESP_LOGI("Door controller initialized");
 }

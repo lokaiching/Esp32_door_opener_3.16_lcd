@@ -38,3 +38,8 @@ Notes
   - component config -> esp psram -> enable spi ram
   - (Top) → Component config → ESP PSRAM → Support for external, SPI-connected RAM → SPI RAM config  -> choose oct mode
 
+4. display chinese (https://lvgl.io/tools/fontconverter)
+   - generate the font file with selected ttf file
+   - generate the header file
+   - udpate the CMmakeLists.txt
+   - include in the ui.c

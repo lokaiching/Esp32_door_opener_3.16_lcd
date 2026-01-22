@@ -16,6 +16,7 @@
 static const char *TAG = "_sdcard";
 
 EventGroupHandle_t sdcard_even_ = NULL;
+sdcard_status_msg_t sdcard_status = SDCARD_INIT_FAILED;
 
 sdcard_bsp_t user_sdcard_bsp;
 
@@ -49,6 +50,13 @@ void _sdcard_init(void)
     sdmmc_card_print_info(stdout, card_host); //Print out the information of the card.
     user_sdcard_bsp.sdcard_size = (float)(card_host->csd.capacity)/2048/1024; //G
     xEventGroupSetBits(sdcard_even_,0x01);
+    sdcard_status = SDCARD_INIT_SUCCESS;
+    ESP_LOGI(TAG, "SD card initialized successfully. Size: %.2f GB", user_sdcard_bsp.sdcard_size);
+  }
+  else 
+  {
+    sdcard_status = SDCARD_INIT_FAILED;
+    ESP_LOGE(TAG, "Failed to initialize SD card.");
   }
 }
 /* Write data
