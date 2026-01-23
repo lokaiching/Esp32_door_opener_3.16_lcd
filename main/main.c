@@ -1,22 +1,33 @@
+#include <dirent.h>
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+
 #include "esp_lcd_st7701.h"
 #include "esp_lcd_panel_io_additions.h"
 #include "esp_lcd_panel_ops.h"
+#include "esp_lcd_panel_rgb.h"
+#include "esp_log.h"
+#include "esp_err.h"
+
+#include "esp_timer.h"
+#include "esp_event.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_log.h"
+
 #include "lvgl.h"
 #include "lv_demos.h"
-#include "esp_timer.h"
-#include "esp_lcd_panel_rgb.h"
+
 #include "driver/gpio.h"
 #include "user_config.h"
 #include "lcd_bl_pwm_bsp.h"
 
+// my library
+#include "door_controller/door_controller.h"
 #include "door_controller/door_controller_ui.h"
+
 #include "esp_wifi_bsp.h"
 #include "sdcard_bsp.h"
 
@@ -174,9 +185,23 @@ void lvgl_flush_wait_cb(lv_display_t * disp) //等待RGB发送数据完成,使�
 void app_main(void)
 {
 
-  ESP_ERROR(esp_event_loop_create_default());
+  esp_event_loop_create_default();
   espwifi_init();
   _sdcard_init();
+
+   DIR *dir = opendir("/sdcard");
+    if (dir == NULL) {
+        ESP_LOGE("SD_SCAN", "Failed to open directory: %s", "/sdcard");
+        return;
+    }
+    struct dirent *entry;
+    ESP_LOGI("SD_SCAN", "Files in %s:", "/sdcard");
+    while ((entry = readdir(dir)) != NULL) {
+        ESP_LOGI("SD_SCAN", "  %s", entry->d_name);
+    }
+    closedir(dir);
+
+  
 
   lcd_bl_pwm_bsp_init(LCD_PWM_MODE_255);
   lvgl_mux = xSemaphoreCreateMutex();
@@ -323,6 +348,8 @@ void app_main(void)
     // Release the mutex
     example_lvgl_unlock();
   }
+
+  door_controller_init();
 }
 
 static void example_backlight_loop_task(void *arg)

@@ -9,5 +9,8 @@ idf_component_register(
         lcd_bl_pwm_bsp 
         esp_wifi_bsp 
         sdcard_bsp
+        esp_event
+        esp_http_client
+        json
     PRIV_REQUIRES esp_timer lvgl 
     )

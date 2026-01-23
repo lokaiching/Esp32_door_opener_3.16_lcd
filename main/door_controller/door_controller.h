@@ -7,12 +7,10 @@
 extern "C" {
 #endif
 
-ESP_EVENT_DECLARE_BASE(DOOR_CONTROLLER_EVENTS);
-
-enum{
+typedef enum{
     DOOR_STATUS_CHANGED = 0,
     QR_UART_INPUT_RECEIVED = 1
-}
+}door_controller_event_t;
 
 void qr_reader_init();
 void door_controller_init();

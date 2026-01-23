@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <esp_log.h>
 #include <esp_http_client.h>
-#include <cJSON.h>
+#include "cJson.h"
 #include "app_data.h"
 
 #define SERVER_URL CONFIG_VENDING_SERVER_URL
@@ -18,6 +18,32 @@ char* build_door_open_request_json(const char* customer_id) {
     char* jsonString = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
     return jsonString; // Must be freed by caller using cJSON_free()
+}
+
+DoorStatus convert_response_to_door_status(const char* response) {
+    if (!response) 
+        return EQUIP_ERR;
+    
+    int responseCode = atoi(response);
+    
+    switch (responseCode) {
+        case 1:
+            return SUCCESS;
+        case 2:
+            return EQUIP_ERR;
+        case 3:
+            return INUSE;
+        case 4:
+            return DEPOSIT_ERR;
+        case 5:
+            return CODE_EXPIRE;
+        case 6:
+            return USING_ANOTHER_SHELF;
+        case 7:
+            return CHECKED_OUT;
+        default:
+            return IDLE;
+    }
 }
 
 DoorStatus door_open_post_request(const char* customer_id) {
@@ -58,30 +84,5 @@ DoorStatus door_open_post_request(const char* customer_id) {
     return status;
 }
 
-DoorStatus convert_response_to_door_status(const char* response) {
-    if (!response) 
-        return EQUIP_ERR;
-    
-    int responseCode = atoi(response);
-    
-    switch (responseCode) {
-        case 1:
-            return SUCCESS;
-        case 2:
-            return EQUIP_ERR;
-        case 3:
-            return INUSE;
-        case 4:
-            return DEPOSIT_ERR;
-        case 5:
-            return CODE_EXPIRE;
-        case 6:
-            return USING_ANOTHER_SHELF;
-        case 7:
-            return CHECKED_OUT;
-        default:
-            return IDLE;
-    }
-}
 
 

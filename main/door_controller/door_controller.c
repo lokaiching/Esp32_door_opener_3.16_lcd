@@ -1,5 +1,7 @@
 #include "esp_log.h"
 #include "esp_event.h"
+#include "esp_timer.h"
+
 #include "app_data.h"
 #include "door_controller.h"
 #include "door_controller_ui.h"
@@ -21,9 +23,18 @@
 
 #define STATUS_TIME_OUT_MS   10000 // 10 seconds
 
-
+ESP_EVENT_DECLARE_BASE(DOOR_CONTROLLER_EVENTS);
+ESP_EVENT_DEFINE_BASE(DOOR_CONTROLLER_EVENTS);
+//esp_event_base_t DOOR_CONTROLLER_EVENTS = "door_controller_events";
 static const char *TAG = "door_controller";
 QueueHandle_t qr_uart_queue = NULL;
+
+app_data_t app_data = {
+	.wifi_connected = false,
+	.door_status = IDLE,
+	.status_changed = false,
+	.last_status_update = 0,
+};
 
 /* Event Handlers */
 static void on_status_changed(void *arg, esp_event_base_t base, int32_t id, void *data){
@@ -47,7 +58,7 @@ static void on_qr_uart_input_received(void *arg, esp_event_base_t base, int32_t 
 		esp_event_post(DOOR_CONTROLLER_EVENTS, DOOR_STATUS_CHANGED, NULL, 0, portMAX_DELAY);
 
 		// Make HTTP POST request to open door
-		DoorStatus status = door_open_post_request(NULL, qr_string, SHELF_ID, NULL);
+		DoorStatus status = door_open_post_request(qr_string);
 		app_data.door_status = status;
 		app_data.status_changed = true;
 
@@ -132,32 +143,42 @@ static void qr_uart_input_event_task(void *pvParameters) {
 	}
 }
 
+static void status_reset_timer_callback(TimerHandle_t xTimer) {
+    unsigned long current_time = esp_timer_get_time() / 1000; // in ms
+    if (current_time - app_data.last_status_update >= STATUS_TIME_OUT_MS) {
+        app_data.door_status = IDLE;
+        app_data.status_changed = true;
+        esp_event_post(DOOR_CONTROLLER_EVENTS, DOOR_STATUS_CHANGED, NULL, 0, portMAX_DELAY);
+        ESP_LOGI(TAG, "Door status reset to IDLE after timeout");
+    }
+}
+
 void start_status_reset_timer() {
 	TimerHandle_t status_reset_timer = xTimerCreate(
 		"StatusResetTimer",
 		pdMS_TO_TICKS(1000),
 		pdFALSE,
 		(void*)0,
-		[](TimerHandle_t xTimer) {
-			unsigned long current_time = esp_timer_get_time() / 1000; // in ms
-			if (current_time - app_data.last_status_update >= STATUS_TIME_OUT_MS) { //
-				app_data.door_status = IDLE;
-				app_data.status_changed = true;
-				esp_event_post(DOOR_CONTROLLER_EVENTS, DOOR_STATUS_CHANGED, NULL, 0, portMAX_DELAY);
-				LOGI("Door status reset to IDLE after timeout");
-			}
-		}
+		status_reset_timer_callback
 	);
 }
 
 void door_controller_init() {
+
+
+
+	app_data.door_status = IDLE;
+	app_data.wifi_connected = false;
+	app_data.status_changed = false;
+	app_data.last_status_update = esp_timer_get_time() / 1000; // in ms
 	
 	// 1. Register event handler for status changes
+
 	esp_event_handler_instance_t instance_any_id;
-	esp_event_handler_instance_register("door_controller", DOOR_CONTROLLER_EVENTS, &on_status_changed, NULL, &instance_any_id);
+	esp_event_handler_instance_register(DOOR_CONTROLLER_EVENTS, DOOR_STATUS_CHANGED, &on_status_changed, NULL, &instance_any_id);
 
 	esp_event_handler_instance_t qr_uart_instance;
-	esp_event_handler_instance_register("door_controller", DOOR_CONTROLLER_EVENTS, &on_qr_uart_input_received, NULL, &qr_uart_instance);
+	esp_event_handler_instance_register(DOOR_CONTROLLER_EVENTS, QR_UART_INPUT_RECEIVED, &on_qr_uart_input_received, NULL, &qr_uart_instance);
 
 	// 2. Initialize QR code reader UART
 	qr_reader_init();
@@ -166,7 +187,7 @@ void door_controller_init() {
 	// 3. Initialize status reset timer
 	start_status_reset_timer();
 
-	ESP_LOGI("Door controller initialized");
+	ESP_LOGI(TAG, "Door controller initialized");
 }
 
 void door_controller_do_work(app_data_t* app_data) {

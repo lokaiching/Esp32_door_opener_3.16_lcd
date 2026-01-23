@@ -1,4 +1,3 @@
-#include "wifi_connection_status.h"
 #include <stdio.h>
 #include "esp_wifi_bsp.h"
 #include "esp_wifi.h"  // WIFI

@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-DoorStatus door_open_post_request(const char* customer_id, size_t* out_len);
+DoorStatus door_open_post_request(const char* customer_id);
 
 #ifdef __cplusplus
 }
