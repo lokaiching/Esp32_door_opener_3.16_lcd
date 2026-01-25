@@ -35,7 +35,7 @@ void _sdcard_init(void)
   };
 
   sdmmc_host_t host = SDMMC_HOST_DEFAULT();
-  host.max_freq_khz = SDMMC_FREQ_HIGHSPEED;//high speed
+  host.max_freq_khz = 8000; //SDMMC_FREQ_HIGHSPEED;//high speed
 
   sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
   slot_config.width = 1;           //1

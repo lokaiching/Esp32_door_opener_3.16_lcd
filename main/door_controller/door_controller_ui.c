@@ -178,10 +178,10 @@ void door_controller_ui_init(void) {
     lv_obj_set_style_bg_opa(parent, LV_OPA_COVER, 0);
 
     //Create Logo
-    logo = lv_image_create(parent);
-    lv_image_set_src(logo, "/sdcard/logo.jpg"); // Path to JPEG on SD card
-    lv_obj_set_size(logo, 320, 80);
-    lv_obj_align(logo, LV_ALIGN_TOP_MID, 0, 0); // Center the image
+    // logo = lv_image_create(parent);
+    // lv_image_set_src(logo, "/sdcard/LOGO.JPG"); // Path to JPEG on SD card
+    // lv_obj_set_size(logo, 320, 80);
+    // lv_obj_align(logo, LV_ALIGN_TOP_MID, 0, 0); // Center the image
 
 
 //     //Create Status Bar
@@ -206,10 +206,10 @@ void door_controller_ui_init(void) {
 //     // lv_gif_restart(gif_img);
 // #else
 //     // Create fixed image
-    fix_img = lv_image_create(parent);
-    lv_img_set_src(fix_img, "/sdcard/idle.jpg");
-    lv_obj_center(fix_img);
-    lv_obj_set_size(fix_img, 320, 700);
+    // fix_img = lv_image_create(parent);
+    // lv_img_set_src(fix_img, "/sdcard/idle.jpg");
+    // lv_obj_center(fix_img);
+    // lv_obj_set_size(fix_img, 320, 700);
 // #endif
 
     // Create label background box
@@ -226,9 +226,6 @@ void door_controller_ui_init(void) {
     lv_label_set_text(label, marquee_text);
     lv_obj_set_style_text_color(label, lv_color_white(), 0); // Set text color to white
     lv_obj_set_style_text_font(label, FONT_DEFAULT, 0);
-    // lv_obj_set_width(label, lv_obj_get_width(label_bg));
-    // lv_obj_set_height(label, 50);
-    // lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL);
     lv_obj_set_width(label, LV_SIZE_CONTENT); // Let label size to its text
     lv_obj_set_height(label, lv_font_get_line_height(FONT_DEFAULT));
     lv_obj_align(label, LV_ALIGN_RIGHT_MID, 0, 0);
@@ -240,5 +237,5 @@ void door_controller_ui_init(void) {
 
 
     //Optionally: Initialize with IDLE status after a delay or event
-    door_controller_ui_update_status(LOADING);
+    //door_controller_ui_update_status(CHECKED_OUT);
 }

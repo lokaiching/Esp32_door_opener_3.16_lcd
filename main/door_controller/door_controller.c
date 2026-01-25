@@ -17,8 +17,8 @@
 
 #define QR_UART_PORT_NUM      UART_NUM_1
 #define QR_UART_BAUD_RATE     CONFIG_QR_READER_BAUD_RATE
-#define QR_UART_TX_PIN        (GPIO_NUM_17) // Change as needed
-#define QR_UART_RX_PIN        (GPIO_NUM_16) // Change as needed
+#define QR_UART_TX_PIN        (GPIO_NUM_43) // Change as needed
+#define QR_UART_RX_PIN        (GPIO_NUM_44) // Change as needed
 #define QR_UART_BUF_SIZE      1024
 
 #define STATUS_TIME_OUT_MS   10000 // 10 seconds
