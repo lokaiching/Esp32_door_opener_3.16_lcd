@@ -75,35 +75,39 @@ static lv_anim_t label_anim;
 typedef struct {
         lv_color_t start;
         lv_color_t end;
-} color_pair_t;
+    } color_pair_t;
 
 static void bg_fading_exec_cb(void *var, int32_t v) {
     lv_obj_t *obj = (lv_obj_t *)var;
     color_pair_t *p = (color_pair_t *)lv_anim_get_user_data(&label_anim);
-    lv_color_t mixed = lv_color_mix( p->start , p->end , (uint8_t)v);
+    lv_color_t mixed = lv_color_mix(  p->end , p->start , (uint8_t)v);
     lv_obj_set_style_bg_color(obj, mixed, 0);
+}
+
+static void bg_fading_ready_cb(lv_anim_t *a) {
+    color_pair_t *p = (color_pair_t *)lv_anim_get_user_data(a);
+    free(p);
 }
 
 void bg_fading_color_change(lv_obj_t *obj,  lv_color_t end){
     
-    //lv_obj_set_style_bg_color(label_bg, end, 0);
     lv_color_t start = lv_obj_get_style_bg_color(obj, 0);
-    color_pair_t cp = {
-        .start = start,
-        .end = end
-    };
-
+    color_pair_t *cp = malloc(sizeof(color_pair_t));
+    cp->start = start;
+    cp->end = end;
 
     lv_anim_init(&label_anim);
     lv_anim_set_var(&label_anim, obj);
     lv_anim_set_values(&label_anim, 0, 255);
-    lv_anim_set_user_data(&label_anim, &cp);
+    lv_anim_set_user_data(&label_anim, cp);
     lv_anim_set_time(&label_anim, 1000);
     lv_anim_set_exec_cb(&label_anim, bg_fading_exec_cb);
-
     lv_anim_set_path_cb(&label_anim, lv_anim_path_ease_in_out);
+    lv_anim_set_ready_cb(&label_anim, bg_fading_ready_cb);
     lv_anim_start(&label_anim);
 }
+
+
 
 
 void door_controller_ui_update_status(DoorStatus status) {
@@ -152,7 +156,7 @@ void door_controller_ui_update_status(DoorStatus status) {
         case CHECKED_OUT:
             strcpy(marquee_text, "已結帳, 無法使用");
             strcpy(img_source, "/sdcard/checked_out.jpg");
-            bg_fading_color_change(label_bg, lv_color_hex(0x000000)); 
+            bg_fading_color_change(label_bg, lv_color_hex(0xFF0266)); 
             break;
         default:
             strcpy(marquee_text, "搞唔掂, 請聯絡職員");
@@ -244,5 +248,5 @@ void door_controller_ui_init(void) {
 
 
     //Optionally: Initialize with IDLE status after a delay or event
-    door_controller_ui_update_status(LOADING);
+    door_controller_ui_update_status(USING_ANOTHER_SHELF);
 }
