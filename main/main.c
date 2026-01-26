@@ -10,6 +10,7 @@
 #include "esp_timer.h"
 #include "esp_event.h"
 
+#include "esp_lcd_types.h"
 #include "lvgl.h"
 
 #include "driver/gpio.h"
@@ -20,17 +21,19 @@
 
 #include "door_controller/door_controller.h"
 #include "door_controller/door_controller_ui.h"
+#include "drv_init/lcd_init.h"
+#include "lvgl_init/lvgl_init.h"
 
 
 #include "esp_wifi_bsp.h"
 #include "sdcard_bsp.h"
 
-SemaphoreHandle_t *lvgl_mux = NULL;
-SemaphoreHandle_t *flush_done_semaphore = NULL;
+SemaphoreHandle_t lvgl_mux = NULL;
+SemaphoreHandle_t flush_done_semaphore = NULL;
 
 void app_main(void)
 {
-
+  ESP_LOGI("APP_MAIN", "Starting application <<<======================================");
   esp_event_loop_create_default();
   qr_reader_init();
   espwifi_init();
@@ -44,8 +47,7 @@ void app_main(void)
   
   esp_lcd_panel_handle_t panel_handle = NULL;
   lcd_init(&panel_handle); //初始化LCD
-
-  lvgl_init(panel_handle, lvgl_mux, flush_done_semaphore);
+  lvgl_init(panel_handle);
 
   if (example_lvgl_lock(-1))
   {
@@ -59,6 +61,6 @@ void app_main(void)
     example_lvgl_unlock();
   }
 
-  door_controller_init();
+  // door_controller_init();
 }
 

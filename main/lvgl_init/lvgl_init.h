@@ -6,11 +6,18 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void lvgl_init(esp_lcd_panel_handle_t panel_handle, SemaphoreHandle_t *lvgl_mutex, SemaphoreHandle_t *flush_done_semaphore);
+extern SemaphoreHandle_t lvgl_mux;
+
+
+void lvgl_init();
+bool example_lvgl_lock(int wait_ms);
+void example_lvgl_unlock(void);
 
 #ifdef __cplusplus
 }

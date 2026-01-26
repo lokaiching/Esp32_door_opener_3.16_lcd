@@ -11,7 +11,6 @@ typedef enum{
     DOOR_STATUS_CHANGED = 0,
 }door_controller_event_t;
 
-void qr_reader_init();
 void door_controller_init();
 
 #ifdef __cplusplus

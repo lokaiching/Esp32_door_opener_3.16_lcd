@@ -4,6 +4,7 @@
 #include "esp_lcd_types.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_err.h"
+#include "freertos/semphr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,7 +15,11 @@ extern "C" {
  *
  * @param[out] panel_handle Pointer to the panel handle to be initialized.
  */
-void lcd_init(esp_lcd_panel_handle_t *panel_handle, SemaphoreHandle_t *lcd_flush_semaphore);
+
+ extern SemaphoreHandle_t flush_done_semaphore;
+ extern esp_lcd_panel_handle_t panel_handle;
+
+void lcd_init(esp_lcd_panel_handle_t *panel_handle);
 
 #ifdef __cplusplus
 }

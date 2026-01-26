@@ -19,26 +19,8 @@
 
 
 static const char *TAG = "qr_coder_reader";
+ESP_EVENT_DEFINE_BASE(QR_READER_EVENTS);
 QueueHandle_t qr_uart_queue = NULL;
-
-void qr_reader_init() {
-	const uart_config_t uart_config = {
-		.baud_rate = QR_UART_BAUD_RATE,
-		.data_bits = UART_DATA_8_BITS,
-		.parity    = UART_PARITY_DISABLE,
-		.stop_bits = UART_STOP_BITS_1,
-		.flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-		.source_clk = UART_SCLK_APB,
-	};
-
-	// Install UART driver with event queue
-	uart_driver_install(QR_UART_PORT_NUM, QR_UART_BUF_SIZE, QR_UART_BUF_SIZE, 20, &qr_uart_queue, 0);
-	uart_param_config(QR_UART_PORT_NUM, &uart_config);
-	uart_set_pin(QR_UART_PORT_NUM, QR_UART_TX_PIN, QR_UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-	xTaskCreatePinnedToCore(qr_uart_input_event_task, "qr_uart_input_event_task", 4096, NULL, 12, NULL, 0);	
-	
-	ESP_LOGI(TAG, "QR Reader UART initialized on port %d", QR_UART_PORT_NUM);
-}
 
 static void qr_uart_input_event_task(void *pvParameters) {
 	uart_event_t event;
@@ -97,3 +79,23 @@ static void qr_uart_input_event_task(void *pvParameters) {
 		}
 	}
 }
+
+void qr_reader_init() {
+	const uart_config_t uart_config = {
+		.baud_rate = QR_UART_BAUD_RATE,
+		.data_bits = UART_DATA_8_BITS,
+		.parity    = UART_PARITY_DISABLE,
+		.stop_bits = UART_STOP_BITS_1,
+		.flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+		.source_clk = UART_SCLK_APB,
+	};
+
+	// Install UART driver with event queue
+	uart_driver_install(QR_UART_PORT_NUM, QR_UART_BUF_SIZE, QR_UART_BUF_SIZE, 20, &qr_uart_queue, 0);
+	uart_param_config(QR_UART_PORT_NUM, &uart_config);
+	uart_set_pin(QR_UART_PORT_NUM, QR_UART_TX_PIN, QR_UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+	xTaskCreatePinnedToCore(qr_uart_input_event_task, "qr_uart_input_event_task", 4096, NULL, 12, NULL, 0);	
+	
+	ESP_LOGI(TAG, "QR Reader UART initialized on port %d", QR_UART_PORT_NUM);
+}
+

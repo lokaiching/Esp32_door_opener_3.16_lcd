@@ -2,16 +2,19 @@
 #include "esp_lcd_panel_io_additions.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_rgb.h" // Added to ensure esp_lcd_rgb_panel_event_callbacks_t is defined
+#include "esp_lcd_types.h"
 #include "esp_log.h"
 #include "esp_err.h"
-
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
+#include "driver/gpio.h"
+#include "../user_config.h"
+#include "lcd_init.h"
+
 #define EXAMPLE_LCD_BIT_PER_PIXEL 16
-static SemaphoreHandle_t *flush_done_semaphore = NULL;
 
 static bool example_on_bounce_frame_finish_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *edata, void *user_ctx) //刷新完成触发LVGL刷新新一帧
 {
@@ -73,9 +76,8 @@ static const st7701_lcd_init_cmd_t lcd_init_cmds[] =
 };
 
 
-void lcd_init(esp_lcd_panel_handle_t *panel_handle, SemaphoreHandle_t *lcd_flush_semaphore){
+void lcd_init(esp_lcd_panel_handle_t *panel_handle){
 
-  flush_done_semaphore = lcd_flush_semaphore;
 
       spi_line_config_t line_config =
   {
@@ -163,20 +165,15 @@ void lcd_init(esp_lcd_panel_handle_t *panel_handle, SemaphoreHandle_t *lcd_flush
     .vendor_config = &vendor_config,
   };         
   
-  esp_lcd_panel_handle_t panel_handle = NULL;
+  // Create the st7701 panel driver and pannel handler
+  ESP_ERROR_CHECK(esp_lcd_new_panel_st7701(io_handle, &panel_config, panel_handle));   
   
-  ESP_ERROR_CHECK(esp_lcd_new_panel_st7701(io_handle, &panel_config, &panel_handle));   
-  
-  /**
-   * Only create RGB when `enable_io_multiplex` is set to 0,
-   * or initialize st7701 meanwhile
- */
   esp_lcd_rgb_panel_event_callbacks_t cbs = {
     .on_bounce_frame_finish = example_on_bounce_frame_finish_event,
   };
   
-  ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(panel_handle, &cbs, NULL));
-  ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));                                   // Only reset RGB when `enable_io_multiplex` is set to 1, or reset st7701 meanwhile
-  ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));                                    // Only initialize RGB when `enable_io_multiplex` is set to 1, or initialize st7701 meanwhile
+  ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(*panel_handle, &cbs, NULL));
+  ESP_ERROR_CHECK(esp_lcd_panel_reset(*panel_handle));                                   // Only reset RGB when `enable_io_multiplex` is set to 1, or reset st7701 meanwhile
+  ESP_ERROR_CHECK(esp_lcd_panel_init(*panel_handle));                                    // Only initialize RGB when `enable_io_multiplex` is set to 1, or initialize st7701 meanwhile
 
 }

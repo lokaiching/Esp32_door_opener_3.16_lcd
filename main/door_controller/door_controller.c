@@ -19,7 +19,6 @@ ESP_EVENT_DECLARE_BASE(DOOR_CONTROLLER_EVENTS);
 ESP_EVENT_DEFINE_BASE(DOOR_CONTROLLER_EVENTS);
 //esp_event_base_t DOOR_CONTROLLER_EVENTS = "door_controller_events";
 static const char *TAG = "door_controller";
-QueueHandle_t qr_uart_queue = NULL;
 
 app_data_t app_data = {
 	.wifi_connected = false,

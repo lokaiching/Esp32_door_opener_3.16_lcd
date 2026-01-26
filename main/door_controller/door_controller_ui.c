@@ -80,7 +80,7 @@ typedef struct {
 static void bg_fading_exec_cb(void *var, int32_t v) {
     lv_obj_t *obj = (lv_obj_t *)var;
     color_pair_t *p = (color_pair_t *)lv_anim_get_user_data(&label_anim);
-    lv_color_t mixed = lv_color_mix( p->end, p->start, (uint8_t)v);
+    lv_color_t mixed = lv_color_mix( p->start , p->end , (uint8_t)v);
     lv_obj_set_style_bg_color(obj, mixed, 0);
 }
 
@@ -92,6 +92,7 @@ void bg_fading_color_change(lv_obj_t *obj,  lv_color_t end){
         .start = start,
         .end = end
     };
+
 
     lv_anim_init(&label_anim);
     lv_anim_set_var(&label_anim, obj);
@@ -151,7 +152,7 @@ void door_controller_ui_update_status(DoorStatus status) {
         case CHECKED_OUT:
             strcpy(marquee_text, "已結帳, 無法使用");
             strcpy(img_source, "/sdcard/checked_out.jpg");
-            bg_fading_color_change(label_bg, lv_color_hex(0xFF0266)); 
+            bg_fading_color_change(label_bg, lv_color_hex(0x000000)); 
             break;
         default:
             strcpy(marquee_text, "搞唔掂, 請聯絡職員");
@@ -243,5 +244,5 @@ void door_controller_ui_init(void) {
 
 
     //Optionally: Initialize with IDLE status after a delay or event
-    //door_controller_ui_update_status(CHECKED_OUT);
+    door_controller_ui_update_status(LOADING);
 }

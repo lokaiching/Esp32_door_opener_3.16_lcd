@@ -13,12 +13,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
+
+#include "user_config.h"
+
 #define EXAMPLE_LCD_BIT_PER_PIXEL 16
 #define BYTES_PER_PIXEL (LV_COLOR_FORMAT_GET_SIZE(LV_COLOR_FORMAT_RGB565))
 #define BUFF_SIZE (EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES * BYTES_PER_PIXEL)
 
-SemaphoreHandle_t *lvgl_mux = NULL;
-SemaphoreHandle_t *flush_done_semaphore = NULL;
+
 uint8_t *lvgl_dest = NULL;
 
 static void example_increase_lvgl_tick(void *arg)
@@ -29,7 +31,7 @@ static void example_increase_lvgl_tick(void *arg)
 
 static void example_lvgl_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * color_p)
 {
-  esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t)lv_display_get_user_data(disp);
+  esp_lcd_panel_handle_t _panel_handle = (esp_lcd_panel_handle_t)lv_display_get_user_data(disp);
 #ifdef EXAMPLE_Rotate_90
   lv_display_rotation_t rotation = lv_display_get_rotation(disp);
   lv_area_t rotated_area;
@@ -47,13 +49,13 @@ static void example_lvgl_flush_cb(lv_display_t * disp, const lv_area_t * area, u
     
     int32_t src_w = lv_area_get_width(area);
     int32_t src_h = lv_area_get_height(area);
-    lv_draw_sw_rotate(color_p, lvgl_dest, src_w, src_h, src_stride, dest_stride, rotation, cf);
+    lv_draw_sw_rotate(color_p, lvgl_dest, src_w, src_h, src_stride, dest_stride, rotation, cf); 
     /*Use the rotated area and rotated buffer from now on*/
     area = &rotated_area;
   }
-  esp_lcd_panel_draw_bitmap(panel_handle, area->x1, area->y1, area->x2+1, area->y2+1, lvgl_dest);
+  esp_lcd_panel_draw_bitmap(_panel_handle, area->x1, area->y1, area->x2+1, area->y2+1, lvgl_dest);
 #else
-  esp_lcd_panel_draw_bitmap(panel_handle, area->x1, area->y1, area->x2+1, area->y2+1, color_p);
+  esp_lcd_panel_draw_bitmap(_panel_handle, area->x1, area->y1, area->x2+1, area->y2+1, color_p);
 #endif
 }
 
@@ -62,7 +64,7 @@ void lvgl_flush_wait_cb(lv_display_t * disp) //等待RGB发送数据完成,使�
   xSemaphoreTake(flush_done_semaphore, portMAX_DELAY);
 }
 
-static bool example_lvgl_lock(int timeout_ms)
+bool example_lvgl_lock(int timeout_ms)
 {
   assert(lvgl_mux && "bsp_display_start must be called first");
 
@@ -70,7 +72,7 @@ static bool example_lvgl_lock(int timeout_ms)
   return xSemaphoreTake(lvgl_mux, timeout_ticks) == pdTRUE;
 }
 
-static void example_lvgl_unlock(void)
+void example_lvgl_unlock(void)
 {
   assert(lvgl_mux && "bsp_display_start must be called first");
   xSemaphoreGive(lvgl_mux);
@@ -100,15 +102,9 @@ static void example_lvgl_port_task(void *arg)
   }
 }
 
-void lvgl_port_init(esp_lcd_panel_handle_t *panel_handle, SemaphoreHandle_t *lvgl_mutex, SemaphoreHandle_t *lcd_flush_semaphore)
+void lvgl_init(esp_lcd_panel_handle_t panel_handle)
 {
-  // Create a mutex to protect LVGL calls
-  lvgl_mux = lvgl_mutex;
-  assert(lvgl_mux && "lvgl_mux create failed");
-  flush_done_semaphore = lcd_flush_semaphore;
-  assert(flush_done_semaphore && "flush_done_semaphore create failed");
-
-    lv_init();
+  lv_init();
   lv_display_t * disp = lv_display_create(EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES); /* 以水平和垂直分辨率（像素）进行基本初始化 */
   lv_display_set_flush_cb(disp, example_lvgl_flush_cb);                          /* 设置刷新回调函数以绘制到显示屏 */
   lv_display_set_flush_wait_cb(disp,lvgl_flush_wait_cb);
