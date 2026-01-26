@@ -17,9 +17,7 @@
 
 #define STATUS_TIME_OUT_MS   10000 // 10 seconds
 
-ESP_EVENT_DECLARE_BASE(QR_READER_EVENTS);
-ESP_EVENT_DEFINE_BASE(QR_READER_EVENTS);
-//esp_event_base_t DOOR_CONTROLLER_EVENTS = "door_controller_events";
+
 static const char *TAG = "qr_coder_reader";
 QueueHandle_t qr_uart_queue = NULL;
 

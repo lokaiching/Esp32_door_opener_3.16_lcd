@@ -178,11 +178,17 @@ void door_controller_ui_init(void) {
     lv_obj_set_style_bg_opa(parent, LV_OPA_COVER, 0);
 
     //Create Logo
-    // logo = lv_image_create(parent);
-    // lv_image_set_src(logo, "/sdcard/LOGO.JPG"); // Path to JPEG on SD card
-    // lv_obj_set_size(logo, 320, 80);
-    // lv_obj_align(logo, LV_ALIGN_TOP_MID, 0, 0); // Center the image
+    logo = lv_image_create(parent);
+    lv_image_set_src(logo, "/sdcard/LOGO.JPG"); // Path to JPEG on SD card
+    lv_obj_set_size(logo, 320, 80);
+    lv_obj_align(logo, LV_ALIGN_TOP_MID, 0, 0); // Center the image
 
+    const lv_image_dsc_t *img_dsc = lv_image_get_src(logo);
+    if(img_dsc == NULL) {
+        ESP_LOGE("door_controller_ui", "Failed to load logo image from SD card");
+    } else {
+        ESP_LOGI("door_controller_ui", "Logo image loaded: width=%d, height=%d", img_dsc->header.w, img_dsc->header.h);
+    }
 
 //     //Create Status Bar
 //     status_bar = lv_label_create(parent);

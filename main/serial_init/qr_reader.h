@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+ESP_EVENT_DECLARE_BASE(QR_READER_EVENTS);
+ESP_EVENT_DEFINE_BASE(QR_READER_EVENTS);
+
 typedef enum{
     QR_UART_INPUT_RECEIVED = 0
 }qr_reader_event_t;

@@ -34,6 +34,7 @@ Notes
 ===========
 1. idf.py update-dependencies
 2. add the cnofig to main/Kconfig.projbuild
+3. check the box to use the menuconfig for lvgl
 3. idf.py menuconfig
   - component config -> esp psram -> enable spi ram
   - (Top) → Component config → ESP PSRAM → Support for external, SPI-connected RAM → SPI RAM config  -> choose oct mode
@@ -43,5 +44,12 @@ Notes
    - generate the header file
    - udpate the CMmakeLists.txt
    - include in the ui.c
+
+5. try to enable the picture decoder
+   - (Top) → Component config → LVGL configuration → 3rd Party Libraries (PNG decoder lib / libjpeg-turbo decoder library)
+   - set driver leter to 83 -> S
+
+6. try to enable the SD file system FATFS
+  - (Top) → Component config → LVGL configuration → 3rd Party Libraries -> file system on tip of fatfs
 
 5. size 320 x 820 / img size = 320 x 720 / logo = 320 x 80 / label = 320 x 40
